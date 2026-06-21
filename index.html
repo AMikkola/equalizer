@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Erg Score Calculator</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+      background: #f5f4f0;
+      color: #1a1a1a;
+      min-height: 100vh;
+      padding: 2rem 1rem;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    header {
+      margin-bottom: 1.5rem;
+    }
+
+    header h1 {
+      font-size: 22px;
+      font-weight: 500;
+      margin-bottom: 4px;
+    }
+
+    header p {
+      font-size: 14px;
+      color: #666;
+    }
+
+    .card {
+      background: #fff;
+      border: 0.5px solid #ddd;
+      border-radius: 12px;
+      padding: 1rem 1.25rem;
+      margin-bottom: 12px;
+    }
+
+    .section-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: #888;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 10px;
+    }
+
+    .input-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .input-row label {
+      font-size: 14px;
+      color: #555;
+      min-width: 110px;
+    }
+
+    input[type="text"] {
+      font-size: 14px;
+      font-family: inherit;
+      padding: 6px 10px;
+      border: 0.5px solid #ccc;
+      border-radius: 6px;
+      background: #fafafa;
+      color: #1a1a1a;
+      outline: none;
+    }
+
+    input[type="text"]:focus {
+      border-color: #888;
+      background: #fff;
+    }
+
+    .unit {
+      font-size: 13px;
+      color: #888;
+    }
+
+    .dist-btn, .unit-btn {
+      font-family: inherit;
+      font-size: 14px;
+      padding: 5px 14px;
+      border-radius: 6px;
+      cursor: pointer;
+      border: 1px solid #ccc;
+      background: transparent;
+      color: #888;
+      transition: none;
+    }
+
+    .note {
+      font-size: 12px;
+      color: #888;
+      margin-top: 6px;
+      line-height: 1.5;
+    }
+
+    .unit-confirm {
+      font-size: 12px;
+      color: #555;
+      margin: -2px 0 8px;
+    }
+
+    .result-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin-top: 1rem;
+      margin-bottom: 10px;
+    }
+
+    .result-grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .metric {
+      background: #f5f4f0;
+      border-radius: 8px;
+      padding: 12px 14px;
+    }
+
+    .metric-label {
+      font-size: 11px;
+      color: #888;
+      margin-bottom: 4px;
+    }
+
+    .metric-value {
+      font-size: 18px;
+      font-weight: 500;
+      color: #1a1a1a;
+    }
+
+    .metric-sub {
+      font-size: 11px;
+      color: #aaa;
+      margin-top: 2px;
+    }
+
+    .combined-highlight {
+      background: #f5f4f0;
+      border: 0.5px solid #bbb;
+      border-radius: 12px;
+      padding: 14px 16px;
+      margin-top: 10px;
+    }
+
+    .combined-label {
+      font-size: 12px;
+      color: #888;
+      margin-bottom: 2px;
+    }
+
+    .combined-value {
+      font-size: 26px;
+      font-weight: 500;
+      color: #1a1a1a;
+    }
+
+    footer {
+      margin-top: 2rem;
+      font-size: 12px;
+      color: #aaa;
+      text-align: center;
+      line-height: 1.6;
+    }
+
+    footer a { color: #aaa; }
+
+    @media (max-width: 480px) {
+      .result-grid-3 { grid-template-columns: repeat(2, 1fr); }
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+
+  <header>
+    <h1>Erg Score Calculator</h1>
+    <p>Age and weight adjustment for individual ergometer scores</p>
+  </header>
+
+  <div class="card">
+    <p class="section-label">Distance</p>
+    <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:12px;">
+      <button class="dist-btn" id="btn-1000" onclick="setDist(1000)">1000 m</button>
+      <button class="dist-btn" id="btn-2000" onclick="setDist(2000)">2000 m</button>
+      <button class="dist-btn" id="btn-5000" onclick="setDist(5000)">5000 m</button>
+    </div>
+    <div class="input-row">
+      <label>Custom distance</label>
+      <input type="text" inputmode="numeric" id="dist-custom" value="1000" style="width:90px;" oninput="onCustomDist(this)">
+      <span class="unit">m</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <p class="section-label">Raw score</p>
+    <div class="input-row">
+      <label>Time</label>
+      <input type="text" inputmode="numeric" id="min" value="3" style="width:55px;" oninput="calc()">
+      <span class="unit">min</span>
+      <input type="text" inputmode="decimal" id="sec" value="0" style="width:65px;" oninput="calc()">
+      <span class="unit">sec</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <p class="section-label">Age adjustment — USRowing masters (singles, K = 0.025)</p>
+    <div class="input-row">
+      <label>Age</label>
+      <input type="text" inputmode="numeric" id="age" value="45" style="width:65px;" oninput="calc()">
+      <span class="unit">years</span>
+    </div>
+    <p class="note">Handicap = (age − 27)² × 0.025. No adjustment for ages 27 and below.</p>
+  </div>
+
+  <div class="card">
+    <p class="section-label">Weight adjustment — Concept2 formula</p>
+    <div class="input-row">
+      <label>Body weight</label>
+      <input type="text" inputmode="numeric" id="weight" value="165" style="width:60px;" oninput="calc()">
+      <button class="unit-btn" id="btn-lbs" onclick="setUnit('lbs')" style="margin-left:4px;">lbs</button>
+      <button class="unit-btn" id="btn-kg" onclick="setUnit('kg')">kg</button>
+    </div>
+    <p class="unit-confirm" id="unit-confirm">Using: <strong>pounds (lbs)</strong></p>
+    <p class="note">Adjusted time = actual time × (weight in lbs / 270)^0.222. Lighter than 270 lbs → faster adjusted time.</p>
+  </div>
+
+  <div class="card">
+    <p class="section-label">Results</p>
+
+    <div class="result-grid">
+      <div class="metric">
+        <p class="metric-label">Raw time</p>
+        <p class="metric-value" id="res-raw">—</p>
+        <p class="metric-sub">full distance</p>
+      </div>
+      <div class="metric">
+        <p class="metric-label">Raw split /500m</p>
+        <p class="metric-value" id="res-split-raw">—</p>
+        <p class="metric-sub">unadjusted</p>
+      </div>
+    </div>
+
+    <div class="result-grid-3">
+      <div class="metric">
+        <p class="metric-label">Age handicap</p>
+        <p class="metric-value" id="res-age-h">—</p>
+        <p class="metric-sub">seconds off time</p>
+      </div>
+      <div class="metric">
+        <p class="metric-label">Weight factor</p>
+        <p class="metric-value" id="res-wf">—</p>
+        <p class="metric-sub">Wf multiplier</p>
+      </div>
+      <div class="metric">
+        <p class="metric-label">Weight-adj time</p>
+        <p class="metric-value" id="res-w-only">—</p>
+        <p class="metric-sub" id="res-w-split">—</p>
+      </div>
+    </div>
+
+    <div class="combined-highlight">
+      <p class="combined-label">Adjusted split /500m</p>
+      <p class="combined-value" id="res-combined-split">—</p>
+      <p class="combined-label" style="margin-top:10px;">Combined adjusted time</p>
+      <p class="combined-value" id="res-combined">—</p>
+    </div>
+    <p class="note" style="margin-top:8px;">Age handicap applied first, then weight factor multiplied.</p>
+  </div>
+
+  <footer>
+    Age formula: USRowing masters handicap (singles, K = 0.025) &nbsp;|&nbsp;
+    Weight formula: <a href="https://www.concept2.com/training/weight-adjustment-calculator" target="_blank">Concept2 weight adjustment</a>
+  </footer>
+
+</div>
+
+<script>
+  let currentDist = 1000;
+  let weightUnit = 'lbs';
+
+  const ON  = { background: '#1a1a1a', color: '#ffffff', borderColor: '#1a1a1a', fontWeight: '500' };
+  const OFF = { background: 'transparent', color: '#888', borderColor: '#ccc', fontWeight: '400' };
+
+  function applyStyle(el, s) { Object.assign(el.style, s); }
+
+  function renderDistBtns() {
+    [1000, 2000, 5000].forEach(d => {
+      applyStyle(document.getElementById('btn-' + d), d === currentDist ? ON : OFF);
+    });
+  }
+
+  function renderUnitBtns() {
+    applyStyle(document.getElementById('btn-lbs'), weightUnit === 'lbs' ? ON : OFF);
+    applyStyle(document.getElementById('btn-kg'),  weightUnit === 'kg'  ? ON : OFF);
+    document.getElementById('unit-confirm').innerHTML =
+      'Using: <strong>' + (weightUnit === 'lbs' ? 'pounds (lbs)' : 'kilograms (kg)') + '</strong>';
+  }
+
+  function setDist(d) {
+    currentDist = d;
+    document.getElementById('dist-custom').value = d;
+    renderDistBtns();
+    calc();
+  }
+
+  function onCustomDist(inp) {
+    const val = parseInt(inp.value);
+    if (!val) return;
+    currentDist = val;
+    renderDistBtns();
+    calc();
+  }
+
+  function setUnit(u) {
+    weightUnit = u;
+    renderUnitBtns();
+    calc();
+  }
+
+  function fmtTime(s) {
+    if (isNaN(s) || s < 0) return '—';
+    const m = Math.floor(s / 60);
+    const rem = s % 60;
+    const sInt = Math.floor(rem);
+    const dec = Math.round((rem - sInt) * 10);
+    return m + ':' + String(sInt).padStart(2, '0') + '.' + dec;
+  }
+
+  function split500(s) {
+    if (isNaN(s) || s <= 0 || !currentDist) return '—';
+    return fmtTime((s / currentDist) * 500);
+  }
+
+  function calc() {
+    const mins = parseFloat(document.getElementById('min').value) || 0;
+    const secs = parseFloat(document.getElementById('sec').value) || 0;
+    const age  = parseInt(document.getElementById('age').value)   || 0;
+    let weight = parseFloat(document.getElementById('weight').value) || 0;
+    if (weightUnit === 'kg') weight *= 2.20462;
+
+    const raw         = mins * 60 + secs;
+    const handicap    = age <= 27 ? 0 : Math.pow(age - 27, 2) * 0.025;
+    const afterAge    = Math.max(0, raw - handicap);
+    const Wf          = weight > 0 ? Math.pow(weight / 270, 0.222) : 1;
+    const weightAdj   = raw * Wf;
+    const combined    = afterAge * Wf;
+
+    document.getElementById('res-raw').textContent          = fmtTime(raw);
+    document.getElementById('res-split-raw').textContent    = split500(raw);
+    document.getElementById('res-age-h').textContent        = handicap.toFixed(1) + 's';
+    document.getElementById('res-wf').textContent           = weight > 0 ? Wf.toFixed(4) : '—';
+    document.getElementById('res-w-only').textContent       = fmtTime(weightAdj);
+    document.getElementById('res-w-split').textContent      = split500(weightAdj) + ' /500m';
+    document.getElementById('res-combined').textContent     = fmtTime(combined);
+    document.getElementById('res-combined-split').textContent = split500(combined);
+  }
+
+  renderDistBtns();
+  renderUnitBtns();
+  calc();
+</script>
+
+</body>
+</html>
