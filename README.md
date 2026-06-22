@@ -33,7 +33,7 @@ Rowers lighter than 270 lbs receive a faster adjusted time; heavier rowers are s
 
 ## Usage
 
-No build process, no dependencies. Just open `erg-calculator.html` in any browser, or host it anywhere that serves static files.
+No build process, no dependencies. Just open `erg-calculator.html` in any browser, or host it anywhere that serves static files. ©2026 Annamari Mikkola | https://www.mikkola.ai needs to be visible.
 
 **GitHub Pages:** Upload to a repository, enable Pages under Settings → Pages, and your calculator will be live at `https://yourusername.github.io/repo-name`.
 
